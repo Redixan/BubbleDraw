@@ -5,9 +5,15 @@ import java.util.Random;
 import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.event.*;
+import javax.swing.JButton;
+import javax.swing.JSlider;
+import javax.swing.JLabel;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 public class BubblePanel extends JPanel {
 	
+	JSlider slider;
 	Random rand = new Random();
 	ArrayList<Bubble> bubbleList;
 	int size = 25;
@@ -19,6 +25,53 @@ public class BubblePanel extends JPanel {
 		timer = new Timer(delay, new BubbleListener());
 		bubbleList = new ArrayList<Bubble>();
 		setBackground(Color.BLACK);
+		
+		JPanel panel = new JPanel();
+		panel.setToolTipText("Animation speed:");
+		add(panel);
+		
+		JButton btnStartPause = new JButton("Pause");
+		btnStartPause.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JButton btnStPs = (JButton)e.getSource();
+				if(btnStPs.getText().equals("Pause")){
+					timer.stop();
+					btnStPs.setText("Start"); 
+				}
+				else{
+					timer.start();
+					btnStPs.setText("Pause");
+				}
+			}
+		});
+		
+		JLabel lblNewLabel = new JLabel("Animation speed:");
+		lblNewLabel.setToolTipText("Animation speed:");
+		panel.add(lblNewLabel);
+		
+	    slider = new JSlider();
+		slider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				int speed = slider.getValue() + 1;
+				int delay = 1000 /speed;
+				timer.setDelay(delay);
+			}
+		});
+		slider.setPaintTicks(true);
+		slider.setPaintLabels(true);
+		slider.setMinorTickSpacing(5);
+		slider.setMaximum(120);
+		panel.add(slider);
+		panel.add(btnStartPause);
+		
+		JButton btnClear = new JButton("Clear");
+		btnClear.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				bubbleList = new ArrayList<Bubble>();
+				repaint();
+			}
+		});
+		panel.add(btnClear);
 		addMouseListener(new BubbleListener());
 		addMouseMotionListener(new BubbleListener());
 		addMouseWheelListener(new BubbleListener());
@@ -90,6 +143,14 @@ public class BubblePanel extends JPanel {
 							  rand.nextInt(256));
 			xSpeed = rand.nextInt(MAX_SPEED * 2 + 1) - MAX_SPEED;
 			ySpeed = rand.nextInt(MAX_SPEED * 2 + 1) - MAX_SPEED;
+			
+			if(xSpeed == 0){
+				xSpeed = rand.nextInt(MAX_SPEED * 2 + 1) - MAX_SPEED;
+			}
+			
+			if(ySpeed == 0){
+				ySpeed = rand.nextInt(MAX_SPEED * 2 + 1) - MAX_SPEED;
+			}
 		}
 		
 		public void draw(Graphics canvas){
@@ -101,7 +162,13 @@ public class BubblePanel extends JPanel {
 		public void update(){
 			x += xSpeed;
 			y += ySpeed;
+			
+			if(x - size/2 <= 0 || x + size/2 >= getWidth())
+				xSpeed = -xSpeed;
+			
+			if(y - size/2 <= 0 || y + size/2 >= getHeight())
+				ySpeed = -ySpeed;
 		}
 	}
-	
+
 }
