@@ -53,8 +53,12 @@ public class BubblePanel extends JPanel {
 				size += e.getUnitsToScroll();
 			else
 				size -= e.getUnitsToScroll();
+			
+			if(size <= 3){
+				size = 3;
+			}
 		}
-		
+			
 	}
 	
 	private class Bubble{
